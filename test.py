@@ -1,6 +1,8 @@
-import re
-import requests
 
-print(requests.get('https://maps.app.goo.gl/bcHmerv1BTfVewt56'))
-print(requests.get('https://maps.app.goo.gl/bchmerv1btfvewt56'))
-print('https://maps.app.goo.gl/bcHmerv1BTfVewt56' == 'https://maps.app.goo.gl/bchmerv1btfvewt56')
+import re
+
+st = '22.3333, 33.22222'
+one = re.search(r'\d+\.\d+', st).group(0)
+two = re.findall(r'\d+\.\d+', st)[-1]
+print(one)
+print(two)

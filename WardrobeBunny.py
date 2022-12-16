@@ -3,18 +3,15 @@ import re
 
 import telebot
 import requests
-bot = telebot.TeleBot('Token_for_bot', threaded=False)
+bot = telebot.TeleBot('Token_Bunny', threaded=False)
 
 
 def get_coordinates(message_location):
-        list_loc = re.findall('\d+\.\d+\,\d+\.\d+', message_location)
-        lat = list_loc[0].split(',')[1]
-        lon = list_loc[0].split(',')[0]
+        lat = re.search(r'\d+\.\d+', message_location).group(0)  # широта
+        lon = re.findall(r'\d+\.\d+', message_location)[-1]
         loc= f"lat={lat}&lon={lon}"
+        loc =loc.replace(' ', '')
         return loc
-                    #"""if re.findall('\d+\.\d+\,\d+\.\d+', message.text):
-                    #loc = localtion_now(message.text)
-                        #bot.send_message(message.from_user.id, f'Kоординаты заданы: {loc}')"""
 
 def get_data(loc="lat=59.931193608737843&lon=30.418711071833968"):
     page_data = requests.get(f'https://yandex.ru/pogoda/?{loc}')
@@ -79,18 +76,31 @@ def get_text_messages(message):
                f"{weather['pressure']}"
         bot.send_message(message.from_user.id, text)
 
-    elif re.findall('\d+\.\d+\,\d+\.\d+', message.text) :
+    elif re.findall(r'\d+\.\d+,? ?\d+\.\d+', message.text):  # координаты=числа
+        print('number')
         coordinates = get_coordinates(message.text)
         get_data.__defaults__ = (coordinates,)
-        bot.send_message(message.from_user.id, re.findall('\d+\.\d+\,\d+\.\d+', message.text))
+        bot.send_message(message.from_user.id, re.findall(r'\d+\.\d+,? ?\d+\.\d+', message.text))
 
-    elif re.findall('https://maps.app.goo.gl', message.text):
-        url = message.text.split('\n')[1]
+    elif re.findall(r'https://yandex.ru/maps/', message.text):
+        print('Yandex')
+        bot.send_message(message.from_user.id, 'Yandex даёт говно ссылку с проверкой ботов. Дай тогда координаты в формате "Yandex: координаты"')
+
+    elif re.findall(r'https://maps.app.goo.gl', message.text) \
+            or re.findall('https://goo.gl/maps', message.text) \
+            or re.findall('https://go.2gis.com/', message.text):
+        print("link")
+        url = message.text.split('\n')[-1]
         req = requests.get(url)
         coordinates_mix = re.findall('\d+\.\d+', req.url)
         lon = coordinates_mix[1]
         lat = coordinates_mix[0]
+        if re.findall(r'https://go.2gis.com/', message.text):
+            lon, lat = lat, lon
         get_data.__defaults__ = (f"lat={lat}&lon={lon}",)
+        mess = get_data.__defaults__
+        bot.send_message(message.from_user.id, mess)
+
     else:
         print('else')
         print(message.text)

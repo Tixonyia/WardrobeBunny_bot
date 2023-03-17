@@ -116,7 +116,7 @@ def get_text_messages(message):
             functions.get_weather.__defaults__ = (coord_str,)
             bot.send_message(message.from_user.id, coord_str,)
 
-    elif message.text.lower() == "добавить погоду":
+    elif message.text.lower() == 'добавить погоду':
         weather_data = functions.get_weather()
         dict_columns = {'weather_name': 'Дайте название погоде', 'weather_description': 'Дайте описание погоде',
                         'things_description': 'Что было надето', 'coments': 'Комментарии.'}
@@ -155,6 +155,13 @@ def get_text_messages(message):
         res, thing = data_cursor.change_user_things(message.from_user.id, message.text.lower())
         bot.send_message(message.from_user.id, f"{thing}:")
         [bot.send_message(message.from_user.id, item) for item in res]
+
+    elif message.text.lower() == "команды":
+        bot.send_message(message.from_user.id, "Команды:")
+        comands = ['изменить место', 'изменить одежду',
+                   'изменить погоду', 'мои места', 'моя одежда', 'моя погода',
+                   'добавить погоду', 'добавить одежду', 'добавить место', 'погода']
+        [bot.send_message(message.from_user.id, item) for item in comands]
 
     elif message.from_user.id == 187814413:
         bja = ['Любля', 'Супер-дупер любля', 'Мега БЖЯ', 'Цыпленочек',
